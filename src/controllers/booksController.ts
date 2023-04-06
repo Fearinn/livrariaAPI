@@ -1,106 +1,92 @@
-import { CallbackError } from "mongoose";
-import books, { TBook } from "../models/Book.js";
-import express from "express";
+import books from "../models/Book.js";
+import express, { NextFunction } from "express";
 
 class BookController {
-  static getAllBooks = (_: express.Request, response: express.Response) => {
-    books
-      .find()
-      .populate("author")
-      .exec((_, books) => {
-        response.status(200).json(books);
-      });
+  static getAllBooks = async (
+    _: express.Request,
+    response: express.Response,
+    next: NextFunction
+  ) => {
+    try {
+      const book = await books.find().populate("author").exec();
+      response.status(200).json(book);
+    } catch (err) {
+      next(err);
+    }
   };
 
-  static getBookById = (
+  static getBookById = async (
     request: express.Request,
-    response: express.Response
+    response: express.Response,
+    next: NextFunction
   ) => {
+    try {
+      const { id } = request.params;
+      const book = await books.findById(id).populate("author", "name").exec();
+
+      response.status(200).send(book);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  static saveBook = async (
+    request: express.Request,
+    response: express.Response,
+    next: NextFunction
+  ) => {
+    try {
+      const book = new books(request.body);
+      const result = await book.save();
+
+      response.status(200).send(result);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  static updateBook = async (
+    request: express.Request,
+    response: express.Response,
+    next: NextFunction
+  ) => {
+    try {
+    } catch (err) {
+      next(err);
+    }
     const { id } = request.params;
-    books
-      .findById(id)
-      .populate("author", "name")
-      .exec((error, book) => {
-        if (error) {
-          response.status(500).send({
-            message: `${error.message} [The book couldn't be fetched]`,
-          });
-        } else if (!book) {
-          response
-            .status(400)
-            .send({ message: `No book with the given id was found` });
-        } else {
-          response.status(200).send(book);
-        }
-      });
+    const result = await books.findByIdAndUpdate(id, { $set: request.body });
+
+    response.status(200).send(result);
   };
 
-  static saveBook = (request: express.Request, response: express.Response) => {
-    const book = new books(request.body);
-    book.save((error: CallbackError) => {
-      if (error) {
-        response
-          .status(500)
-          .send({ message: `${error.message} [Failed to save the book]` });
-      } else {
-        response.status(200).send("Book successfully saved");
-      }
-    });
-  };
-
-  static updateBook = (
+  static deleteBook = async (
     request: express.Request,
-    response: express.Response
+    response: express.Response,
+    next: NextFunction
   ) => {
+    try {
+    } catch (err) {
+      next(err);
+    }
     const { id } = request.params;
-
-    books.findByIdAndUpdate(
-      id,
-      { $set: request.body },
-      (error: CallbackError) => {
-        if (!error) {
-          response.status(200).send({ message: "Book successfully updated" });
-        } else {
-          response
-            .status(200)
-            .send({ message: `${error.message} [Book id not found]` });
-        }
-      }
-    );
+    const result = await books.findByIdAndDelete(id);
+    response.status(200).send(result);
   };
 
-  static deleteBook = (
+  static getBookByPublisher = async (
     request: express.Request,
-    response: express.Response
+    response: express.Response,
+    next: NextFunction
   ) => {
-    const { id } = request.params;
+    try {
+      const { publisher } = request.query;
+      const result = await books.find({ publisher: publisher });
 
-    books.findByIdAndDelete(id, (error: CallbackError, book: TBook) => {
-      if (!error) {
-        response.status(200).send({ message: "Book successfully deleted" });
-      } else {
-        response
-          .status(500)
-          .send({ message: `${error.message} [The book couldn't be deleted]` });
-      }
-    });
-  };
-
-  static getBookByPublisher = (
-    request: express.Request,
-    response: express.Response
-  ) => {
-    const { publisher } = request.query;
-
-    books.find({ publisher: publisher }, {}, (error, books) => {
-      if (error) {
-        response.status(500).send(error.message);
-      } else if (!books.length) {
-        response.status(400).send("No book from the given publisher was found");
-      } else {
-        response.status(200).send(books);
-      }
-    });
+      response.status(200).send(result);
+    } catch (err) {
+      next(err);
+    }
   };
 }
 
