@@ -2,7 +2,8 @@ import express, { NextFunction, Request, Response } from "express";
 import db from "./config/dbConnect.js";
 import routes from "./routes/index.js";
 import * as dotenv from "dotenv";
-import mongoose, { MongooseError, mongo } from "mongoose";
+import page404Handler from "./middlewares/404.js";
+import errorHandler from "./middlewares/errorHandler.js";
 
 dotenv.config();
 
@@ -15,15 +16,10 @@ const app = express();
 
 routes(app);
 
-app.use(
-  (err: unknown, _: Request, response: Response, next: NextFunction) => {
-    if (err instanceof mongoose.Error.CastError) {
-      response.status(400).send({ message: err.message });
-      return;
-    }
+app.use((_, __, next) => page404Handler(next));
 
-    response.status(500).send({ message: "Internal server error" });
-  }
+app.use((err: unknown, _: Request, res: Response, next: NextFunction) =>
+  errorHandler(err, res, next)
 );
 
 export default app;

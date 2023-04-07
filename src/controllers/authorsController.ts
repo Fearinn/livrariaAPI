@@ -1,3 +1,4 @@
+import NotFound from "../errors/NotFound.js";
 import authors from "../models/Author.js";
 import express, { NextFunction } from "express";
 
@@ -23,6 +24,11 @@ class AuthorController {
     try {
       const { id } = request.params;
       const author = await authors.findById(id);
+
+      if (!author) {
+        next(new NotFound("author"));
+        return;
+      }
       response.status(200).send(author);
     } catch (err) {
       next(err);
@@ -37,6 +43,12 @@ class AuthorController {
     try {
       const author = new authors(request.body);
       const result = await author.save();
+
+      if (!result) {
+        next(new NotFound("author"));
+        return;
+      }
+
       response.status(200).send(result);
     } catch (err) {
       next(err);
@@ -53,6 +65,12 @@ class AuthorController {
       const result = await authors.findByIdAndUpdate(id, {
         $set: request.body,
       });
+
+      if (!result) {
+        next(new NotFound("author"));
+        return;
+      }
+
       response.status(200).send(result);
     } catch (err) {
       next(err);
@@ -67,6 +85,12 @@ class AuthorController {
     try {
       const { id } = request.params;
       const result = await authors.findByIdAndDelete(id);
+
+      if (!result) {
+        next(new NotFound("author"));
+        return;
+      }
+
       response.status(200).send(result);
     } catch (err) {
       next(err);

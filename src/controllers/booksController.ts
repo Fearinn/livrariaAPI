@@ -1,3 +1,4 @@
+import NotFound from "../errors/NotFound.js";
 import books from "../models/Book.js";
 import express, { NextFunction } from "express";
 
@@ -23,6 +24,11 @@ class BookController {
     try {
       const { id } = request.params;
       const book = await books.findById(id).populate("author", "name").exec();
+
+      if (!book) {
+        next(new NotFound("book"));
+        return;
+      }
 
       response.status(200).send(book);
     } catch (err) {
@@ -57,6 +63,11 @@ class BookController {
     const { id } = request.params;
     const result = await books.findByIdAndUpdate(id, { $set: request.body });
 
+    if (!result) {
+      next(new NotFound("book"));
+      return;
+    }
+
     response.status(200).send(result);
   };
 
@@ -71,6 +82,12 @@ class BookController {
     }
     const { id } = request.params;
     const result = await books.findByIdAndDelete(id);
+
+    if (!result) {
+      next(new NotFound("book"));
+
+      return;
+    }
     response.status(200).send(result);
   };
 
