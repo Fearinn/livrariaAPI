@@ -13,13 +13,15 @@ function errorHandler(err: unknown, response: Response, next: NextFunction) {
 
   if (err instanceof mongoose.Error.ValidationError) {
     new BadValidation().send(response);
+    return;
   }
 
   if (err instanceof NotFound) {
     err.send(response);
+    return;
   }
 
   new BaseError().send(response);
 }
 
-export default errorHandler
+export default errorHandler;
