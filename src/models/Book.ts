@@ -10,15 +10,15 @@ export type TBook = {
 };
 
 const bookSchema = new mongoose.Schema<TBook>({
-  id: { type: String },
-  title: { type: String, required: true },
+  id: { type: mongoose.Schema.Types.String },
+  title: { type: mongoose.Schema.Types.String, required: true },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "authors",
     required: true,
   },
   publisher: { type: String, required: true },
-  numberOfPages: { type: Number },
+  numberOfPages: { type: mongoose.Schema.Types.Number },
 });
 
 const books = mongoose.model("books", bookSchema);
