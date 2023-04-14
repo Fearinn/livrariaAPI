@@ -1,6 +1,5 @@
-import BadRequest from "../errors/BadRequest.js";
 import NotFound from "../errors/NotFound.js";
-import authors from "../models/Author.js";
+import { authors } from "../models/index.js";
 import express, { NextFunction } from "express";
 
 class AuthorController {
@@ -42,9 +41,11 @@ class AuthorController {
     next: NextFunction
   ) => {
     try {
-      const author = new authors(request.body);
-      const result = await author.save();
       
+      const author = new authors(request.body);
+
+      const result = await author.save();
+
       response.status(200).send(result);
     } catch (err) {
       next(err);
