@@ -4,6 +4,7 @@ import routes from "./routes/index.js";
 import * as dotenv from "dotenv";
 import page404Handler from "./middlewares/404.js";
 import errorHandler from "./middlewares/errorHandler.js";
+import pagination from "./middlewares/pagination.js";
 
 dotenv.config();
 
@@ -15,6 +16,8 @@ db.once("open", () => {
 const app = express();
 
 routes(app);
+
+app.use(pagination);
 
 app.use((_, __, next) => page404Handler(next));
 
