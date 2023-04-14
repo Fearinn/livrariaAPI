@@ -8,9 +8,9 @@ export type TAuthor = {
 
 const authorSchema = new mongoose.Schema<TAuthor>(
   {
-    id: { type: String },
-    name: { type: String, required: true },
-    nationality: { type: String },
+    id: { type: mongoose.Schema.Types.String },
+    name: { type: mongoose.Schema.Types.String, required: true },
+    nationality: { type: mongoose.Schema.Types.String },
   },
   { versionKey: false }
 );
